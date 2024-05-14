@@ -49,7 +49,7 @@ class MpDumpDb extends MpSoft\MpDumpDb\Module\ModuleTemplate
             && $this->installMenu(
                 'Dump DB',
                 $this->name,
-                'AdminParentAdvancedParameters',
+                'AdminTools',
                 'AdminDumpDb'
             );
     }

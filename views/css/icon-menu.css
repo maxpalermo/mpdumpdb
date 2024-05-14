@@ -44,7 +44,7 @@ li[id^="subtab-"] a:before {
     margin-right: 4px;
 }
 
-#subtab-AdminMpDumpDb a:before {
+#subtab-AdminDumpDb a:before {
     content: "\f1c0";
     color: #a8f392 !important;
 }
