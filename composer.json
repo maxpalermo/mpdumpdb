@@ -1,0 +1,31 @@
+{
+    "name": "mpsoft/mpdumpdb",
+    "description": "Dump Prestashop db",
+    "authors": [
+        {
+            "name": "Massimiliano Palermo",
+            "email": "maxx.palermo@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.1.0",
+        "prestashop/prestashop-webservice-lib": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "MpSoft\\MpDumpDb\\": "src/",
+            "MpSoft\\MpDumpDb\\libs\\": "libs/",
+            "MpSoft\\MpDumpDb\\WebServices\\": "vendor/prestashop/"
+        },
+        "classmap": [],
+        "exclude-from-classmap": [],
+        "files": [
+            "vendor/prestashop/prestashop-webservice-lib/PSWebServiceLibrary.php"
+        ]
+    },
+    "config": {
+        "preferred-install": "dist",
+        "prepend-autoloader": false
+    },
+    "type": "prestashop-module"
+}
