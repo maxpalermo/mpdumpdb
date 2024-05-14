@@ -16,7 +16,7 @@
  * @copyright Since 2016 Massimiliano Palermo
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
-<form action="{$action}" method="post">
+<form action="{$action}" method="post" id="form-upload">
     <div class="panel">
         <div class="panel-heading">
             <i class="icon icon-cogs"></i>
@@ -75,9 +75,9 @@
                                         </td>
                                         <td class="fixed-width-md">
                                             <div class="btn-group" role="group" aria-label="Button group">
-                                                <button type="button" class="btn btn-default btn-small">
+                                                <a href="javascript:void(0);" class="btn btn-default btn-small btn-upload" onclick="$('#submitExport').click();">
                                                     <i class="icon icon-upload"></i>
-                                                </button>
+                                                </a>
                                                 <button type="button" class="btn btn-default btn-small">
                                                     <i class="icon icon-search"></i>
                                                 </button>
@@ -92,7 +92,7 @@
             </div>
         </div>
         <div class="panel-footer text-center">
-            <button class="btn btn-default" type="submit" name="submitExport">
+            <button class="btn btn-default" type="submit" name="submitExport" id="submitExport">
                 <i class="process-icon-upload"></i>
                 <span>{l s='Esporta' mod='mpdumpdb'}</span>
             </button>

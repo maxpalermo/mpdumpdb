@@ -16,6 +16,11 @@ class TemplateExportController
         return $this->fields;
     }
 
+    public function getFieldsKey()
+    {
+        return array_keys($this->fields);
+    }
+
     public function getRows()
     {
         $sql = 'SELECT * FROM ' . _DB_PREFIX_ . $this->table_name;

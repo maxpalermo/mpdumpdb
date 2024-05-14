@@ -125,9 +125,9 @@ class AdminDumpDbController extends ModuleAdminController
             $db_version_dest = Tools::getValue('db_version_dest');
 
             foreach ($tables as $table) {
-                $table = ucfirst(Tools::toCamelCase(str_replace(_DB_PREFIX_, '', $table)));
-                $source_controller = 'MpSoft\MpDumpDb\Export\\' . $db_version_source . '\\' . $table;
-                $dest_controller = 'MpSoft\MpDumpDb\Export\\' . $db_version_dest . '\\' . $table;
+                $controller_name = ucfirst(Tools::toCamelCase(str_replace(_DB_PREFIX_, '', $table)));
+                $source_controller = 'MpSoft\MpDumpDb\Export\\' . $db_version_source . '\\' . $controller_name;
+                $dest_controller = 'MpSoft\MpDumpDb\Export\\' . $db_version_dest . '\\' . $controller_name;
                 $source_controllers[] = new $source_controller;
                 $dest_controllers[] = new $dest_controller;
             }
@@ -135,7 +135,7 @@ class AdminDumpDbController extends ModuleAdminController
             foreach ($source_controllers as $source_controller) {
                 $rows = $source_controller->getRows();
                 $table_name = $source_controller->getTableName();
-                $fields = $source_controller->getFields();
+                $fields = $source_controller->getFieldsKey();
                 $values = [];
                 foreach ($rows as &$row) {
                     $row = array_map(function ($field) {
@@ -144,9 +144,24 @@ class AdminDumpDbController extends ModuleAdminController
                     $row = array_values($row);
                     $values[] = '(' . implode(', ', $row) . ')';
                 }
+
+                $query = 'INSERT INTO ' . $table_name . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $values);
+
+                $this->download($query);
             }
 
             $this->confirmations[] = 'Tabelle esportate da ' . $db_version_source . ' a ' . $db_version_dest . ': ' . implode(', ', $tables);
         }
+    }
+
+    protected function download($content)
+    {
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="dump.sql"');
+        header('Content-Length: ' . strlen($content));
+        header('Connection: close');
+        echo $content;
+
+        return 0;
     }
 }
