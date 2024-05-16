@@ -1,4 +1,6 @@
 <?php
+use MpSoft\MpDumpDb\Export\TemplateExportController;
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -72,7 +74,7 @@ class AdminDumpDbController extends ModuleAdminController
         $smarty->assign('button', $this->l('Esporta DB'));
         $smarty->assign('button_action', 'export');
         $smarty->assign('button_icon', 'icon-download');
-        $smarty->assign('tables_list', $this->getTablesList());
+        $smarty->assign('tables_list', $this->getTablesListLight());
         $smarty->assign('db_versions', [
             'v161' => 'Prestashop 1.6.1',
             'v170' => 'Prestashop 1.7.0',
@@ -85,6 +87,20 @@ class AdminDumpDbController extends ModuleAdminController
         ]);
 
         return $this->context->smarty->fetch($this->module->getLocalPath() . 'views/templates/admin/dumpDB.tpl');
+    }
+
+    public function getTablesListLight()
+    {
+        $tables = $this->getTablesList();
+        $excluded = TemplateExportController::getExcluded();
+        foreach ($tables as $key => $table) {
+            $tablename = str_replace(_DB_PREFIX_, '', $table);
+            if (in_array($tablename, $excluded)) {
+                unset($tables[$key]);
+            }
+        }
+
+        return $tables;
     }
 
     public function getTablesList()
@@ -123,6 +139,9 @@ class AdminDumpDbController extends ModuleAdminController
             $dest_controllers = [];
             $db_version_source = Tools::getValue('db_version_source');
             $db_version_dest = Tools::getValue('db_version_dest');
+            $queries = [];
+            $table_name = null;
+            $file_name = null;
 
             foreach ($tables as $table) {
                 $controller_name = ucfirst(Tools::toCamelCase(str_replace(_DB_PREFIX_, '', $table)));
@@ -133,35 +152,63 @@ class AdminDumpDbController extends ModuleAdminController
             }
 
             foreach ($source_controllers as $source_controller) {
-                $rows = $source_controller->getRows();
+                if (!$file_name) {
+                    $file_name = $source_controller->getTableName();
+                }
                 $table_name = $source_controller->getTableName();
+                $source_fields_orig = $source_controller->getFieldsKey();
+                $source_fields_current = $this->getFields($table_name);
+                $source_fields = array_intersect($source_fields_orig, $source_fields_current);
+
+                $rows = $source_controller->getRows($source_fields[0]);
                 $fields = $source_controller->getFieldsKey();
                 $values = [];
+
+                if (!$rows) {
+                    continue;
+                }
+
                 foreach ($rows as &$row) {
-                    $row = array_map(function ($field) {
-                        return '\'' . pSQL($field) . '\'';
-                    }, $row);
+                    foreach ($row as $key => $value) {
+                        if (!in_array($key, $source_fields)) {
+                            unset($row[$key]);
+                        } else {
+                            $row[$key] = '\'' . pSQL($value) . '\'';
+                        }
+                    }
                     $row = array_values($row);
                     $values[] = '(' . implode(', ', $row) . ')';
                 }
 
-                $query = 'INSERT INTO ' . $table_name . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $values);
-
-                $this->download($query);
+                $query = 'INSERT IGNORE INTO ' . _DB_PREFIX_ . $table_name . ' (' . implode(', ', $fields) . ') VALUES ' . implode(', ', $values) . ';';
+                $queries[] = $query;
             }
+            $this->download(implode("\n", $queries), $table_name);
 
             $this->confirmations[] = 'Tabelle esportate da ' . $db_version_source . ' a ' . $db_version_dest . ': ' . implode(', ', $tables);
         }
     }
 
-    protected function download($content)
+    protected function getFields($table)
+    {
+        $conn = Db::getInstance();
+        $fields = $conn->executeS('SHOW COLUMNS FROM ' . _DB_PREFIX_ . $table);
+        $fields_list = [];
+        foreach ($fields as $field) {
+            $fields_list[] = $field['Field'];
+        }
+
+        return $fields_list;
+    }
+
+    protected function download($content, $table)
     {
         header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="dump.sql"');
+        header('Content-Disposition: attachment; filename="' . $table . '.sql"');
         header('Content-Length: ' . strlen($content));
         header('Connection: close');
         echo $content;
 
-        return 0;
+        exit;
     }
 }

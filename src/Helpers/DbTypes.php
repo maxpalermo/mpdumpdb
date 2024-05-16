@@ -5,6 +5,10 @@ namespace MpSoft\MpDumpDb\Helpers;
 class DbTypes
 {
     public const TYPE_INT = 'int';
+    public const TYPE_BIGINT = 'bigint';
+    public const TYPE_TINYINT = 'tinyint';
+    public const TYPE_SMALLINT = 'smallint';
+    public const TYPE_MEDIUMINT = 'mediumint';
     public const TYPE_VARCHAR = 'varchar';
     public const TYPE_DATE = 'date';
     public const TYPE_DATETIME = 'datetime';

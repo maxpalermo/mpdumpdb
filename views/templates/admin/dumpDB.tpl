@@ -50,7 +50,7 @@
                 <div class="col-md-12">
                     <div class="div table-list panel">
                         <h3>
-                            <input type="checkbox" id="check_all_tables" checked>
+                            <input type="checkbox" id="check_all_tables">
                             <span>
                                 Seleziona le tabelle da esportare
                             </span>
@@ -70,7 +70,7 @@
                                 {foreach $tables_list as $table}
                                     <tr>
                                         <td class="fixed-width-xxl">
-                                            <input id="{$table}" class="form-check-input" type="checkbox" name="tables_list[]" value="{$table}" checked>
+                                            <input id="{$table}" class="form-check-input" type="checkbox" name="tables_list[]" value="{$table}">
                                             <label for="{$table}" class="form-check-label">{$table}</label>
                                         </td>
                                         <td class="fixed-width-md">
